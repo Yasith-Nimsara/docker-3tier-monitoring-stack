@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>DevOps Project 2 — Stage 2</title>
+  <style>
+    body { font-family: sans-serif; max-width: 680px; margin: 40px auto; padding: 0 20px; background: #0f172a; color: #f8fafc; }
+    .card { background: #1e293b; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+    button { background: #38bdf8; color: #0f172a; border: none; padding: 10px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+    input { padding: 10px; border-radius: 6px; border: 1px solid #475569; width: 65%; background: #0f172a; color: #fff; }
+    li { margin: 8px 0; }
+  </style>
+</head>
+<body>
+  <h1>3-Tier App Behind Nginx</h1>
+  <div class="card">
+    <h3>Backend & MongoDB Status (via /api/health)</h3>
+    <pre id="health">Checking...</pre>
+  </div>
+  <div class="card">
+    <h3>Saved Tasks (via /api/tasks)</h3>
+    <input id="taskInput" placeholder="Enter a new task..." />
+    <button onclick="addTask()">Add Task</button>
+    <ul id="taskList"></ul>
+  </div>
+  <script>
+    async function loadData() {
+      const hRes = await fetch('/api/health');
+      document.getElementById('health').textContent = JSON.stringify(await hRes.json(), null, 2);
+      const tRes = await fetch('/api/tasks');
+      const tasks = await tRes.json();
+      document.getElementById('taskList').innerHTML = tasks
+        .map(t => `<li>${t.title} <em>(${new Date(t.createdAt).toLocaleTimeString()})</em></li>`)
+        .join('');
+    }
+    async function addTask() {
+      const input = document.getElementById('taskInput');
+      if (!input.value) return;
+      await fetch('/api/tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: input.value })
+      });
+      input.value = '';
+      loadData();
+    }
+    loadData();
+  </script>
+</body>
+</html>
