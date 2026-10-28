@@ -108,13 +108,13 @@ A production-modeled, **8-container DevOps project** orchestrated with **Docker 
 
 Instead of placing all containers on a single flat default network, this project enforces **least-privilege network isolation** across three custom bridge networks:
 
-1. **`public-net` (DMZ / Edge Network):**
+1. **`public-net`**
    * **Connected Services:** `nginx-proxy`, `frontend`, `backend`
    * **Security Boundary:** Allows the Nginx Reverse Proxy to forward requests to the Frontend and Backend without exposing either container's internal ports to the host machine.
-2. **`backend-net` (Isolated Data Network):**
+2. **`backend-net`**
    * **Connected Services:** `backend`, `mongodb`
    * **Security Boundary:** Completely isolates the MongoDB database. Neither `nginx-proxy` nor `frontend` is attached to `backend-net`. Even if the Frontend container were compromised, the attacker has no network route to reach or query the database.
-3. **`monitoring-net` (Telemetry Network):**
+3. **`monitoring-net`**
    * **Connected Services:** `prometheus`, `node-exporter`, `cadvisor`, `grafana`
    * **Security Boundary:** Keeps high-frequency metrics scraping traffic separated from user application traffic.
 
@@ -122,7 +122,6 @@ Instead of placing all containers on a single flat default network, this project
 
 ## 4. DevOps & Security Best Practices Implemented
 
-* **Multi-Stage Docker Builds:** The `backend/Dockerfile` separates dependency installation (`AS deps` with `npm install --omit=dev`) from the final runtime image, reducing image size and attack surface.
 * **Non-Root Container Execution:** The Node.js API container explicitly switches to a least-privilege user (`USER node`) before starting the server, preventing root privilege escalation inside the container.
 * **Zero Direct Backend/Database Port Exposure:** Neither port `5000` (Express) nor port `27017` (MongoDB) is bound to the host machine; all external application traffic must pass through `nginx-proxy` on Port `80`.
 * **Read-Only Configuration & System Mounts (`:ro`):** Configuration files (`default.conf`, `prometheus.yml`, `datasource.yml`) and host system directories (`/proc`, `/sys`, `/var/lib/docker`) are mounted with the `:ro` flag so containers cannot tamper with host files.
@@ -165,7 +164,7 @@ devops-project-1/
 
 1. **Clone the repository:**
    ```bash
-   git clone [https://github.com/](https://github.com/)Yasith-Nimsara/docker-3tier-monitoring-stack.git
+   git clone https://github.com/Yasith-Nimsara/docker-3tier-monitoring-stack.git
    cd docker-3tier-monitoring-stack
    ```
 
